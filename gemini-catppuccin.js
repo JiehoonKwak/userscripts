@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         Gemini Catppuccin Theme & Shortcuts (No Code Block Styling v2.2)
+// @name         Gemini Catppuccin Theme & Shortcuts (No Code Block Styling v2.3)
 // @namespace    http://tampermonkey.net/
-// @version      2.2 // Incremented version for specific Gem targeting
-// @description  Applies Catppuccin Mocha theme, custom styles (excluding code blocks), and updated keyboard shortcuts (targeting specific "Default" Gem) in Google Gemini.
+// @version      2.3 // Updated version for new shortcut mapping
+// @description  Applies Catppuccin Mocha theme, custom styles (excluding code blocks), and updated keyboard shortcuts (Cmd+J for New Chat, Cmd+Shift+J for Default Gem) in Google Gemini.
 // @author       Jiehoonk (Modified for Gemini, Shortcuts, Catppuccin Mocha theme, No Code Block Styling, Updated Shortcuts)
 // @match        https://gemini.google.com/*
 // @grant        GM_addStyle
-// @run-at       document-start // Keep this to inject CSS early
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
@@ -31,8 +31,8 @@
     const headingFontSize = '18px';
     const globalLineHeight = '26px';
     const headingLineHeight = '24px';
-    const codeFontSize = '15px';
-    const codeLineHeight = '24px';
+    // const codeFontSize = '15px'; // Not directly used in global CSS for code blocks anymore
+    // const codeLineHeight = '24px'; // Not directly used
 
     // --- CSS Styles ---
     const css = `
@@ -43,7 +43,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
         pre, code, code *, .code-block *, .font-mono {
-            font-family: monospace !important;
+            font-family: monospace !important; /* Ensure monospace for all code elements */
         }
         /* ---- General Text Styling ---- */
         p, div[role="paragraph"], .message-content, .prose,
@@ -77,7 +77,8 @@
             padding: 0.1em 0.3em !important; border-radius: 4px !important; border: none !important;
             font-family: monospace !important; font-size: 0.95em !important;
         }
-        /* Code Block Styling Removed */
+        /* Code Block Styling Removed - User/Gemini handles this */
+
         /* Math expressions */
         .katex, .katex *, [data-testid="math-inline"], [data-testid="math-block"], [class*="math-"] {
             color: ${catppuccin.pink} !important;
@@ -111,99 +112,160 @@
     `;
 
     GM_addStyle(css);
-    console.log("Gemini Catppuccin (No Code Block Styling v2.2): Styles injected.");
+    console.log("Gemini Catppuccin (No Code Block Styling v2.3): Styles injected.");
 
     function initializeShortcuts() {
-        console.log("Gemini Catppuccin (No Code Block Styling v2.2): DOM ready, adding shortcut listeners.");
+        console.log("Gemini Catppuccin (No Code Block Styling v2.3): DOM ready, adding shortcut listeners.");
 
+        // Add event listener to the document, capturing phase to ensure it runs early
+        // and can override default browser behavior or other scripts if necessary.
         document.addEventListener('keydown', function(event) {
-            const activeElement = document.activeElement;
-            const isInputFocused = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable);
-            const isModifierPressed = event.metaKey || event.ctrlKey;
+            // const activeElement = document.activeElement; // Not strictly needed if we always run shortcuts
+            // const isInputFocused = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable);
+            const isModifierPressed = event.metaKey || event.ctrlKey; // metaKey for macOS Command, ctrlKey for Windows/Linux Ctrl
 
-            // --- Shortcut: Cmd/Ctrl + Shift + J for New Chat --- (Unchanged from v2.1)
-            if (isModifierPressed && event.shiftKey && event.key.toLowerCase() === 'j') {
-                event.preventDefault();
-                event.stopPropagation();
-                const newChatButton = document.querySelector('button[aria-label*="New chat"], [data-test-id="new-chat-button"] button');
+            // --- Shortcut: Cmd/Ctrl + J for New Chat --- (MODIFIED from Cmd+Shift+J)
+            if (isModifierPressed && !event.shiftKey && event.key.toLowerCase() === 'j') {
+                event.preventDefault(); // Prevent default browser action (e.g., opening downloads)
+                event.stopPropagation(); // Stop the event from bubbling up
+                const newChatButton = document.querySelector('button[aria-label*="New chat"], [data-test-id="new-chat-button"] button, a[href="/app"].mat-mdc-button-base'); // Added common new chat link selector
                 if (newChatButton && !newChatButton.disabled) {
-                    console.log('Cmd/Ctrl+Shift+J pressed: Clicking New Chat button.');
+                    console.log('Cmd/Ctrl+J pressed: Clicking New Chat button.');
                     newChatButton.click();
                 } else {
-                    console.warn('Cmd/Ctrl+Shift+J pressed: New Chat button not found or disabled. Trying fallback.');
-                    const fallbackButton = document.querySelector('[data-test-id="new-chat-button"] button');
-                     if (fallbackButton && !fallbackButton.disabled) {
-                         console.log('Cmd/Ctrl+Shift+J pressed: Clicking New Chat button (fallback selector).');
-                         fallbackButton.click();
-                    } else {
-                         console.warn('Cmd/Ctrl+Shift+J pressed: Fallback New Chat button not found or disabled.');
+                    console.warn('Cmd/Ctrl+J pressed: New Chat button not found or disabled. Trying known selectors.');
+                    // Attempt with more specific selectors if the general one fails
+                    const specificSelectors = [
+                        'button[aria-label="New chat"]',
+                        'button[aria-label="New Chat"]',
+                        '[data-test-id="new-chat-button"] button',
+                        'a.gmat-button--primary.new-chat-button', // Example of another possible selector
+                        'div[aria-label="New chat"][role="button"]' // Another example
+                    ];
+                    let clicked = false;
+                    for (const selector of specificSelectors) {
+                        const button = document.querySelector(selector);
+                        if (button && !button.disabled) {
+                            console.log(`Cmd/Ctrl+J pressed: Clicking New Chat button (selector: ${selector}).`);
+                            button.click();
+                            clicked = true;
+                            break;
+                        }
+                    }
+                    if (!clicked) {
+                         console.warn('Cmd/Ctrl+J pressed: All New Chat button selectors failed.');
                     }
                 }
             }
 
-            // --- Shortcut: Cmd/Ctrl + J to click the specific "Default" Gem button --- (MODIFIED LOGIC)
-            if (isModifierPressed && !event.shiftKey && event.key.toLowerCase() === 'j') {
-                 if (isInputFocused) {
-                     console.log('Cmd/Ctrl+J pressed while in input/textarea - allowing default browser action.');
-                     return;
-                 }
+            // --- Shortcut: Cmd/Ctrl + Shift + J to click the specific "Default" Gem button --- (MODIFIED from Cmd+J)
+            if (isModifierPressed && event.shiftKey && event.key.toLowerCase() === 'j') {
+                // No longer checking if (isInputFocused) to allow shortcut from anywhere
                 event.preventDefault();
                 event.stopPropagation();
 
-                console.log("Cmd/Ctrl+J pressed: Searching for 'Default' Gem button...");
+                console.log("Cmd/Ctrl+Shift+J pressed: Searching for 'Default' Gem button...");
                 let defaultGemButtonFound = false;
-                // Get all buttons that could be Gems
-                const allGemButtons = document.querySelectorAll('button.bot-new-conversation-button');
+                // Get all buttons that could be Gems. This selector might need to be very specific.
+                // Common patterns for such buttons:
+                // - They are <button> elements.
+                // - They might have a class related to "bot", "conversation", or "gem".
+                // - The text "Default" is usually inside a child element like <span> or <div>.
+                const allPotentialGemButtons = document.querySelectorAll('button, div[role="button"]'); // Broad start, then filter
 
-                // Iterate through them
-                for (const button of allGemButtons) {
-                    // Find the span containing the name within this button
-                    // Using '.bot-name' based on previous inspection, adjust if necessary
-                    const nameSpan = button.querySelector('span.bot-name');
-                    if (nameSpan && nameSpan.textContent.trim() === 'Default') {
-                        console.log("Found 'Default' Gem button. Clicking it.");
-                        button.click();
-                        defaultGemButtonFound = true;
-                        break; // Stop searching once found
+                for (const button of allPotentialGemButtons) {
+                    // Check for common Gemini UI patterns for these types of buttons
+                    // This often involves looking for a specific child span or div with the name.
+                    // Example: button > div > span.bot-name
+                    // Example: button > span (if text is directly in a span)
+                    // Example: div[role="button"] > div > span.name
+                    const nameElements = button.querySelectorAll('span, div'); // Look for text in spans or divs within the button
+                    let foundNameMatch = false;
+                    for (const el of nameElements) {
+                        if (el.textContent && el.textContent.trim() === 'Default') {
+                            foundNameMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (foundNameMatch) {
+                         // Further check if it looks like a "new conversation" or "gem selection" button
+                         // This is heuristic. We might check for specific classes or parent structures.
+                         // For this example, we'll assume if it contains "Default" and is clickable, it's our target.
+                         // A more robust selector would be `button.bot-new-conversation-button` if that class is consistent.
+                         // Or `button[data-gem-id="default"]` if such an attribute exists.
+                        if (button.matches('button.bot-new-conversation-button') || button.closest('.gem-picker-item')) { // Example refinement
+                            console.log("Found 'Default' Gem button. Clicking it.", button);
+                            button.click();
+                            defaultGemButtonFound = true;
+                            break; // Stop searching once found and clicked
+                        } else if (!button.matches('button.bot-new-conversation-button') && !button.closest('.gem-picker-item')) {
+                            // If it contains "Default" but doesn't match a more specific Gem button pattern,
+                            // it might be a less specific button. We still try clicking if it's the only one.
+                            // This part is tricky and might need adjustment based on actual UI.
+                            // For now, if it has "Default" and is a button, we try.
+                            const buttonTextContent = button.textContent || "";
+                            if (buttonTextContent.includes("Default") && button.offsetParent !== null) { // Check if visible
+                                console.log("Found a clickable element with 'Default' text. Attempting click.", button);
+                                button.click();
+                                defaultGemButtonFound = true;
+                                break;
+                            }
+                        }
                     }
                 }
 
                 if (!defaultGemButtonFound) {
-                    console.warn("Cmd/Ctrl+J pressed: 'Default' Gem button not found. Selector used for buttons:", 'button.bot-new-conversation-button', "and checking child span.bot-name text.");
+                    console.warn("Cmd/Ctrl+Shift+J pressed: 'Default' Gem button not found. Inspected all buttons and divs with role='button'. The UI structure for these buttons might have changed or the 'Default' text is not in a simple span/div or the button selector needs refinement.");
                 }
             }
 
-            // --- Shortcut: Cmd/Ctrl + Shift + S for Toggle Sidebar --- (Unchanged from v2.1)
+            // --- Shortcut: Cmd/Ctrl + Shift + S for Toggle Sidebar --- (Unchanged, but also works from input focus)
             if (isModifierPressed && event.shiftKey && event.key.toLowerCase() === 's') {
-                 event.preventDefault();
-                 event.stopPropagation();
-                 const sidebarToggleButton = document.querySelector('button[aria-label*="menu"], [data-test-id="side-nav-menu-button"]');
-                 if (sidebarToggleButton) {
-                     console.log('Cmd/Ctrl+Shift+S pressed: Clicking Sidebar Toggle button.');
-                     sidebarToggleButton.click();
-                 } else {
-                     console.warn('Cmd/Ctrl+Shift+S pressed: Sidebar Toggle button not found. Trying fallback.');
-                     const fallbackButton = document.querySelector('[data-test-id="side-nav-menu-button"]');
-                      if (fallbackButton) {
-                          console.log('Cmd/Ctrl+Shift+S pressed: Clicking Sidebar Toggle button (fallback selector).');
-                          fallbackButton.click();
-                     } else {
-                          console.warn('Cmd/Ctrl+Shift+S pressed: Fallback Sidebar Toggle button not found.');
-                     }
-                 }
+                event.preventDefault();
+                event.stopPropagation();
+                const sidebarToggleButton = document.querySelector('button[aria-label*="menu"], [data-test-id="side-nav-menu-button"], button[aria-label="Main menu"]');
+                if (sidebarToggleButton) {
+                    console.log('Cmd/Ctrl+Shift+S pressed: Clicking Sidebar Toggle button.');
+                    sidebarToggleButton.click();
+                } else {
+                    console.warn('Cmd/Ctrl+Shift+S pressed: Sidebar Toggle button not found. Trying fallback selectors.');
+                     const fallbackSelectors = [
+                        '[data-test-id="side-nav-menu-button"]',
+                        'button[aria-label="Menu"]', // Common variation
+                        'button[aria-label="Toggle main menu"]'
+                    ];
+                    let clicked = false;
+                    for (const selector of fallbackSelectors) {
+                        const button = document.querySelector(selector);
+                        if (button) {
+                            console.log(`Cmd/Ctrl+Shift+S pressed: Clicking Sidebar Toggle button (selector: ${selector}).`);
+                            button.click();
+                            clicked = true;
+                            break;
+                        }
+                    }
+                    if (!clicked) {
+                        console.warn('Cmd/Ctrl+Shift+S pressed: Fallback Sidebar Toggle button not found.');
+                    }
+                }
             }
-        }, true);
+        }, true); // Use capturing phase
 
-         console.log("Gemini Catppuccin (No Code Block Styling v2.2): Shortcut listeners added.");
+        console.log("Gemini Catppuccin (No Code Block Styling v2.3): Shortcut listeners added.");
     }
 
     // --- Wait for DOMContentLoaded ---
+    // Using document.readyState is generally more reliable than DOMContentLoaded for userscripts
+    // that need to act early or on dynamic content.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeShortcuts);
     } else {
+        // DOMContentLoaded has already fired
         initializeShortcuts();
     }
 
-    console.log("Gemini Catppuccin (No Code Block Styling v2.2): Mutation observer for zoom hack removed.");
+    // Removed MutationObserver for zoom hack as it was not requested for this version.
+    console.log("Gemini Catppuccin (No Code Block Styling v2.3): Script loaded.");
 
 })();
