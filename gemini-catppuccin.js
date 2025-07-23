@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Gemini Catppuccin & Shortcuts (Refactored v3.1)
+// @name         Gemini Catppuccin & Shortcuts (Refactored v3.2)
 // @namespace    http://tampermonkey.net/
-// @version      3.1
-// @description  Applies Catppuccin Mocha theme and robust keyboard shortcuts to Google Gemini. Refactored for maintainability and resilience.
+// @version      3.2
+// @description  Applies Catppuccin Mocha theme (dark mode only) and robust keyboard shortcuts to Google Gemini. Refactored for maintainability and resilience.
 // @author       Jiehoonk (Refactored Version)
 // @match        https://gemini.google.com/*
 // @grant        GM_addStyle
@@ -43,16 +43,16 @@
                 '[data-test-id="side-nav-menu-button"]'
             ].join(', ')
         },
-        scriptName: "Gemini Catppuccin & Shortcuts v3.1"
+        scriptName: "Gemini Catppuccin & Shortcuts v3.2"
     };
 
     /**
      * --- 2. Improved CSS with CSS Variables ---
      */
-    function applyStyles() {
+    function generateCSS() {
         const t = config.theme;
         const f = config.fonts;
-        const css = `
+        return `
             :root {
                 --rosewater: ${t.rosewater}; --flamingo: ${t.flamingo}; --pink: ${t.pink};
                 --mauve: ${t.mauve}; --red: ${t.red}; --maroon: ${t.maroon};
@@ -95,9 +95,43 @@
                 font-family: monospace !important; font-size: 0.95em !important;
             }
         `;
-        GM_addStyle(css);
-        console.log(`${config.scriptName}: Styles injected.`);
     }
+
+    // --- Theme Management Functions ---
+    let themeStyleElement = null;
+
+    function applyTheme() {
+        if (!themeStyleElement) {
+            themeStyleElement = document.createElement('style');
+            themeStyleElement.id = 'gemini-catppuccin-theme';
+            themeStyleElement.textContent = generateCSS();
+            document.head.appendChild(themeStyleElement);
+            console.log(`${config.scriptName}: Dark theme applied.`);
+        }
+    }
+
+    function removeTheme() {
+        if (themeStyleElement) {
+            themeStyleElement.remove();
+            themeStyleElement = null;
+            console.log(`${config.scriptName}: Dark theme removed.`);
+        }
+    }
+
+    function handleThemeChange(mediaQuery) {
+        if (mediaQuery.matches) {
+            // Dark mode
+            applyTheme();
+        } else {
+            // Light mode
+            removeTheme();
+        }
+    }
+
+    // --- Initialize Theme Based on System Preference ---
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    handleThemeChange(darkModeMediaQuery);
+    darkModeMediaQuery.addEventListener('change', handleThemeChange);
 
     /**
      * --- 3. Reusable Helper Function for Clicking Elements ---
@@ -163,12 +197,11 @@
     }
 
     // --- Main Execution ---
-    applyStyles();
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeShortcuts);
     } else {
         initializeShortcuts();
     }
-    console.log(`${config.scriptName}: Script loaded.`);
+    console.log(`${config.scriptName}: Script loaded with dark mode detection.`);
 
 })();

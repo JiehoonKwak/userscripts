@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         NotebookLM Catppuccin Theme & Shortcuts
 // @namespace    http://tampermonkey.net/
-// @version      1.5 // Incremented version
-// @description  Applies Catppuccin Mocha theme, custom styles, and keyboard shortcuts in Google NotebookLM
+// @version      1.6 // Incremented version
+// @description  Applies Catppuccin Mocha theme (dark mode only), custom styles, and keyboard shortcuts in Google NotebookLM
 // @author       Your Name (Based on Jiehoonk's script, HTML analysis, and AI update)
 // @match        https://notebooklm.google.com/*
 // @grant        GM_addStyle
@@ -194,8 +194,42 @@
             color: ${catppuccin.subtext1} !important;
         }
     `;
-    GM_addStyle(css);
-    console.log("NotebookLM Catppuccin: Styles updated with improved markdown support.");
+
+    // --- Theme Management Functions ---
+    let themeStyleElement = null;
+
+    function applyTheme() {
+        if (!themeStyleElement) {
+            themeStyleElement = document.createElement('style');
+            themeStyleElement.id = 'notebooklm-catppuccin-theme';
+            themeStyleElement.textContent = css;
+            document.head.appendChild(themeStyleElement);
+            console.log("NotebookLM Catppuccin: Dark theme applied.");
+        }
+    }
+
+    function removeTheme() {
+        if (themeStyleElement) {
+            themeStyleElement.remove();
+            themeStyleElement = null;
+            console.log("NotebookLM Catppuccin: Dark theme removed.");
+        }
+    }
+
+    function handleThemeChange(mediaQuery) {
+        if (mediaQuery.matches) {
+            // Dark mode
+            applyTheme();
+        } else {
+            // Light mode
+            removeTheme();
+        }
+    }
+
+    // --- Initialize Theme Based on System Preference ---
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    handleThemeChange(darkModeMediaQuery);
+    darkModeMediaQuery.addEventListener('change', handleThemeChange);
 
     // --- Wait for DOM readiness before adding listeners ---
     function initializeShortcuts() {
@@ -256,5 +290,5 @@
         initializeShortcuts();
     }
 
-    console.log("NotebookLM Catppuccin: Script initialized.");
+    console.log("NotebookLM Catppuccin: Script initialized with dark mode detection.");
 })();
