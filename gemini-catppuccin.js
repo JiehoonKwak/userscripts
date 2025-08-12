@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Gemini Catppuccin & Shortcuts (Refactored v3.2)
+// @name         Gemini Catppuccin & Shortcuts (Refactored v3.3)
 // @namespace    http://tampermonkey.net/
-// @version      3.2
+// @version      3.3
 // @description  Applies Catppuccin Mocha theme (dark mode only) and robust keyboard shortcuts to Google Gemini. Refactored for maintainability and resilience.
 // @author       Jiehoonk (Refactored Version)
 // @match        https://gemini.google.com/*
@@ -41,9 +41,17 @@
                 'button[aria-label="Main menu"]',
                 'button[aria-label*="menu"]',
                 '[data-test-id="side-nav-menu-button"]'
+            ].join(', '),
+            modeSwitcher: 'bard-mode-switcher div button',
+            // Added: search button selectors
+            searchButton: [
+                'button[aria-label="검색"]',
+                'button[aria-label="Search"]',
+                'button.search-button',
+                'search-nav-button button[mat-icon-button]'
             ].join(', ')
         },
-        scriptName: "Gemini Catppuccin & Shortcuts v3.2"
+        scriptName: "Gemini Catppuccin & Shortcuts v3.3"
     };
 
     /**
@@ -178,7 +186,11 @@
 
             const key = event.key.toLowerCase();
 
-            if (!event.shiftKey && key === 'j') { // Cmd/Ctrl + J -> New Chat
+            if (!event.shiftKey && key === 'k') { // Cmd/Ctrl + K -> Search
+                event.preventDefault();
+                event.stopPropagation();
+                findAndClick(config.selectors.searchButton, '"Search" button');
+            } else if (!event.shiftKey && key === 'j') { // Cmd/Ctrl + J -> New Chat
                 event.preventDefault();
                 event.stopPropagation();
                 findAndClick(config.selectors.newChat, '"New Chat" button');
@@ -190,6 +202,10 @@
                 event.preventDefault();
                 event.stopPropagation();
                 findAndClick(config.selectors.toggleSidebar, '"Toggle Sidebar" button');
+            } else if (event.shiftKey && key === 'm') { // Cmd/Ctrl + Shift + M -> Mode Switcher
+                event.preventDefault();
+                event.stopPropagation();
+                findAndClick(config.selectors.modeSwitcher, '"Mode Switcher" button');
             }
         }, true);
 
