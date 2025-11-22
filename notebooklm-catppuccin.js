@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         NotebookLM Catppuccin Theme & Shortcuts
 // @namespace    http://tampermonkey.net/
-// @version      1.7
-// @description  Applies Midnight Pro theme (and others), custom styles, and keyboard shortcuts in Google NotebookLM
+// @version      1.8
+// @description  Applies custom font styles, syntax highlighting, and keyboard shortcuts in Google NotebookLM (no background changes)
 // @author       Your Name (Based on Jiehoonk's script, HTML analysis, and AI update)
 // @match        https://notebooklm.google.com/*
 // @grant        GM_addStyle
@@ -10,93 +10,148 @@
 // ==/UserScript==
 
 (function () {
-    'use strict';
+  "use strict";
 
-    // --- Theme Configuration ---
-    const config = {
-        activeTheme: 'midnightPro',
-        themes: {
-            midnightPro: {
-                rosewater: "#cdd6f4", flamingo: "#f2cdcd", pink: "#cba6f7", mauve: "#cba6f7",
-                red: "#00e5ff", maroon: "#2979ff", peach: "#40c4ff", yellow: "#81d4fa",
-                green: "#00e676", teal: "#00b0ff", sky: "#0091ea", sapphire: "#2962ff",
-                blue: "#2979ff", lavender: "#b4befe", text: "#e3f2fd", subtext1: "#bac2de",
-                subtext0: "#a6adc8", overlay2: "#9399b2", overlay1: "#7f849c", overlay0: "#6c7086",
-                surface2: "#1e293b", surface1: "#0f172a", surface0: "#020617", base: "#0f1117",
-                mantle: "#0b0d12", crust: "#000000",
-            },
-            obsidian: {
-                rosewater: "#f5e0dc", flamingo: "#f2cdcd", pink: "#f50057", mauve: "#d500f9",
-                red: "#d500f9", maroon: "#c51162", peach: "#ff4081", yellow: "#f9e2af",
-                green: "#69f0ae", teal: "#1de9b6", sky: "#00b0ff", sapphire: "#651fff",
-                blue: "#3d5afe", lavender: "#b4befe", text: "#ffffff", subtext1: "#e0e0e0",
-                subtext0: "#bdbdbd", overlay2: "#9e9e9e", overlay1: "#757575", overlay0: "#616161",
-                surface2: "#212121", surface1: "#121212", surface0: "#000000", base: "#000000",
-                mantle: "#000000", crust: "#000000",
-            },
-            deepForest: {
-                rosewater: "#f5e0dc", flamingo: "#f2cdcd", pink: "#f5c2e7", mauve: "#cba6f7",
-                red: "#00e676", maroon: "#00c853", peach: "#ffea00", yellow: "#ffd600",
-                green: "#69f0ae", teal: "#1de9b6", sky: "#00b0ff", sapphire: "#0091ea",
-                blue: "#00b0ff", lavender: "#b4befe", text: "#e8f5e9", subtext1: "#c8e6c9",
-                subtext0: "#a5d6a7", overlay2: "#81c784", overlay1: "#66bb6a", overlay0: "#4caf50",
-                surface2: "#1b5e20", surface1: "#0a2f12", surface0: "#051b0a", base: "#0a110a",
-                mantle: "#060b06", crust: "#000000",
-            },
-            catppuccin: {
-                rosewater: "#f5e0dc", flamingo: "#f2cdcd", pink: "#f5c2e7", mauve: "#cba6f7",
-                red: "#f38ba8", maroon: "#eba0ac", peach: "#fab387", yellow: "#f9e2af",
-                green: "#a6e3a1", teal: "#94e2d5", sky: "#89dceb", sapphire: "#74c7ec",
-                blue: "#89b4fa", lavender: "#b4befe", text: "#cdd6f4", subtext1: "#bac2de",
-                subtext0: "#a6adc8", overlay2: "#9399b2", overlay1: "#7f849c", overlay0: "#6c7086",
-                surface2: "#585b70", surface1: "#45475a", surface0: "#313244", base: "#1e1e2e",
-                mantle: "#181825", crust: "#11111b",
-            }
-        }
-    };
-    const t = config.themes[config.activeTheme];
+  // --- Theme Configuration ---
+  const config = {
+    activeTheme: "deepForest",
+    themes: {
+      midnightPro: {
+        rosewater: "#cdd6f4",
+        flamingo: "#f2cdcd",
+        pink: "#cba6f7",
+        mauve: "#cba6f7",
+        red: "#00e5ff",
+        maroon: "#2979ff",
+        peach: "#40c4ff",
+        yellow: "#81d4fa",
+        green: "#00e676",
+        teal: "#00b0ff",
+        sky: "#0091ea",
+        sapphire: "#2962ff",
+        blue: "#2979ff",
+        lavender: "#b4befe",
+        text: "#e3f2fd",
+        subtext1: "#bac2de",
+        subtext0: "#a6adc8",
+        overlay2: "#9399b2",
+        overlay1: "#7f849c",
+        overlay0: "#6c7086",
+        surface2: "#1e293b",
+        surface1: "#0f172a",
+        surface0: "#020617",
+        base: "#0f1117",
+        mantle: "#0b0d12",
+        crust: "#000000",
+      },
+      obsidian: {
+        rosewater: "#f5e0dc",
+        flamingo: "#f2cdcd",
+        pink: "#f50057",
+        mauve: "#d500f9",
+        red: "#d500f9",
+        maroon: "#c51162",
+        peach: "#ff4081",
+        yellow: "#f9e2af",
+        green: "#69f0ae",
+        teal: "#1de9b6",
+        sky: "#00b0ff",
+        sapphire: "#651fff",
+        blue: "#3d5afe",
+        lavender: "#b4befe",
+        text: "#ffffff",
+        subtext1: "#e0e0e0",
+        subtext0: "#bdbdbd",
+        overlay2: "#9e9e9e",
+        overlay1: "#757575",
+        overlay0: "#616161",
+        surface2: "#212121",
+        surface1: "#121212",
+        surface0: "#000000",
+        base: "#000000",
+        mantle: "#000000",
+        crust: "#000000",
+      },
+      deepForest: {
+        rosewater: "#f5e0dc",
+        flamingo: "#f2cdcd",
+        pink: "#f5c2e7",
+        mauve: "#cba6f7",
+        red: "#00e676",
+        maroon: "#00c853",
+        peach: "#ffea00",
+        yellow: "#ffd600",
+        green: "#69f0ae",
+        teal: "#1de9b6",
+        sky: "#00b0ff",
+        sapphire: "#0091ea",
+        blue: "#00b0ff",
+        lavender: "#b4befe",
+        text: "#e8f5e9",
+        subtext1: "#c8e6c9",
+        subtext0: "#a5d6a7",
+        overlay2: "#81c784",
+        overlay1: "#66bb6a",
+        overlay0: "#4caf50",
+        surface2: "#1b5e20",
+        surface1: "#0a2f12",
+        surface0: "#051b0a",
+        base: "#0a110a",
+        mantle: "#060b06",
+        crust: "#000000",
+      },
+      catppuccin: {
+        rosewater: "#f5e0dc",
+        flamingo: "#f2cdcd",
+        pink: "#f5c2e7",
+        mauve: "#cba6f7",
+        red: "#f38ba8",
+        maroon: "#eba0ac",
+        peach: "#fab387",
+        yellow: "#f9e2af",
+        green: "#a6e3a1",
+        teal: "#94e2d5",
+        sky: "#89dceb",
+        sapphire: "#74c7ec",
+        blue: "#89b4fa",
+        lavender: "#b4befe",
+        text: "#cdd6f4",
+        subtext1: "#bac2de",
+        subtext0: "#a6adc8",
+        overlay2: "#9399b2",
+        overlay1: "#7f849c",
+        overlay0: "#6c7086",
+        surface2: "#585b70",
+        surface1: "#45475a",
+        surface0: "#313244",
+        base: "#1e1e2e",
+        mantle: "#181825",
+        crust: "#11111b",
+      },
+    },
+  };
+  const t = config.themes[config.activeTheme];
 
-    // --- Style Definitions ---
-    const primaryTextColor = t.text;
-    const defaultFontFamily = '"SF Pro Rounded", "SF Pro Display", sans-serif'; // Retained for potential future use
-    const paragraphFontSize = '16px';
-    const headingFontSize = '1.17em';
-    const globalLineHeight = '1.6';
-    const headingLineHeight = '1.4';
-    const codeFontSize = '0.95em';
-    const codeLineHeight = '1.5';
+  // --- Style Definitions ---
+  const primaryTextColor = t.text;
+  const defaultFontFamily = '"SF Pro Rounded", "SF Pro Display", sans-serif'; // Retained for potential future use
+  const paragraphFontSize = "16px";
+  const headingFontSize = "1.17em";
+  const globalLineHeight = "1.6";
+  const headingLineHeight = "1.4";
+  const codeFontSize = "0.95em";
+  const codeLineHeight = "1.5";
 
-    // --- CSS Styles ---
-    const css = `
-        /* ---- General Backgrounds ---- */
+  // --- CSS Styles ---
+  const css = `
+        /* ---- Typography & Font Styling ---- */
         body, #app-root, .notebook-layout {
-            background-color: ${t.crust} !important;
-            color: ${primaryTextColor} !important;
-            font-family: ${defaultFontFamily} !important; /* Apply default font family */
-        }
-        .source-panel, .studio-panel, .chat-panel {
-            background-color: ${t.mantle} !important;
-        }
-        mat-card.to-user-message-card-content { /* AI response card */
-            background-color: transparent !important;
-            box-shadow: none !important;
-        }
-        mat-card.from-user-message-card-content { /* User message card */
-            background-color: transparent !important;
-            box-shadow: none !important;
-        }
-        textarea, .chat-input-box, div[contenteditable="true"].chat-input { /* Input areas */
-            background-color: ${t.base} !important;
-            color: ${primaryTextColor} !important;
-            border: 1px solid ${t.surface0} !important;
-            border-radius: 4px !important;
-            font-family: ${defaultFontFamily} !important; /* Apply default font family */
+            font-family: ${defaultFontFamily} !important;
         }
 
         /* ---- Center Panel Content Styling (Targeting .message-content container) ---- */
         .message-content {
-            color: ${primaryTextColor} !important;
-            font-family: ${defaultFontFamily} !important; /* Apply default font family */
+            font-family: ${defaultFontFamily} !important;
         }
 
         /* Normal Paragraphs */
@@ -147,10 +202,6 @@
         /* Inline code */
         .message-content code:not(pre code), .message-content .inline-code {
             color: ${t.teal} !important;
-            background-color: ${t.surface1} !important;
-            padding: 0.1em 0.3em !important;
-            border-radius: 4px !important;
-            border: none !important;
             font-family: monospace !important;
             font-size: ${codeFontSize} !important;
         }
@@ -160,14 +211,8 @@
             display: block !important;
             font-size: ${codeFontSize} !important;
             line-height: ${codeLineHeight} !important;
-            color: ${t.text} !important;
             font-family: monospace !important;
-            background-color: ${t.base} !important;
-            padding: 1em !important;
-            margin: 1em 0 !important;
-            border-radius: 5px !important;
             overflow-x: auto !important;
-            border: 1px solid ${t.surface0} !important;
         }
 
         /* List items */
@@ -182,146 +227,112 @@
             margin-bottom: 0.5em !important;
             padding-left: 0.5em !important;
         }
-        .message-content li::marker {
-            color: ${t.subtext1} !important;
-        }
-
         /* Citation Markers */
         .message-content button.citation-marker {
-            background-color: ${t.surface1} !important;
             color: ${t.blue} !important;
-            padding: 0.1em 0.45em !important;
-            border-radius: 4px !important;
-            border: none !important;
             font-size: 0.8em !important;
             font-weight: bold;
-            margin-left: 0.2em !important;
-            vertical-align: baseline;
-            cursor: pointer !important;
-            line-height: 1 !important;
-            min-width: auto !important;
-            height: auto !important;
-            box-shadow: none !important;
-        }
-        .message-content button.citation-marker:hover {
-            background-color: ${t.surface2} !important;
-        }
-        .message-content button.citation-marker:has(span:contains('...')) {
-            /* Styles for '...' button if needed */
-        }
-
-        /* ---- UI Elements ---- */
-        button.pin-button { /* "Save to Memo" button */
-            background-color: ${t.surface0} !important;
-            color: ${t.sky} !important;
-            border: 1px solid ${t.surface1} !important;
-            font-family: ${defaultFontFamily} !important;
-        }
-        button.pin-button:hover {
-            background-color: ${t.surface1} !important;
-        }
-        chat-actions button.action-button mat-icon {
-            color: ${t.overlay2} !important;
-        }
-        chat-actions button.action-button:hover mat-icon {
-            color: ${t.subtext1} !important;
         }
     `;
 
-    // --- Theme Management Functions ---
-    let themeStyleElement = null;
+  // --- Apply Typography Styles ---
+  const styleElement = document.createElement("style");
+  styleElement.id = "notebooklm-catppuccin-typography";
+  styleElement.textContent = css;
+  document.head.appendChild(styleElement);
+  console.log("NotebookLM Catppuccin: Typography styles applied.");
 
-    function applyTheme() {
-        if (!themeStyleElement) {
-            themeStyleElement = document.createElement('style');
-            themeStyleElement.id = 'notebooklm-catppuccin-theme';
-            themeStyleElement.textContent = css;
-            document.head.appendChild(themeStyleElement);
-            console.log("NotebookLM Catppuccin: Dark theme applied.");
+  // --- Wait for DOM readiness before adding listeners ---
+  function initializeShortcuts() {
+    console.log("NotebookLM Catppuccin: DOM ready, adding shortcut listeners.");
+
+    document.addEventListener(
+      "keydown",
+      function (event) {
+        const isModifierPressed = event.metaKey || event.ctrlKey;
+        const activeElement = document.activeElement;
+        const isInputFocused =
+          activeElement &&
+          (activeElement.tagName === "INPUT" ||
+            activeElement.tagName === "TEXTAREA" ||
+            activeElement.isContentEditable);
+
+        // Cmd/Ctrl + Shift + S -> Toggle Both Sidebars
+        if (
+          isModifierPressed &&
+          event.shiftKey &&
+          event.key.toLowerCase() === "s"
+        ) {
+          if (isInputFocused) return;
+          event.preventDefault();
+          event.stopPropagation();
+          console.log("Cmd/Ctrl+Shift+S pressed: Toggling sidebars...");
+
+          const leftSidebarButton = document.querySelector(
+            'button[aria-label*="Sources"], button.toggle-source-panel-button',
+          );
+          const rightSidebarButton = document.querySelector(
+            'button[aria-label*="Notebook"], button[aria-label*="Studio"], button.toggle-studio-panel-button',
+          );
+
+          let clickedLeft = false;
+          if (leftSidebarButton) {
+            console.log("Found left sidebar toggle:", leftSidebarButton);
+            leftSidebarButton.click();
+            clickedLeft = true;
+          } else {
+            console.warn("Left sidebar toggle button not found.");
+          }
+
+          setTimeout(
+            () => {
+              if (rightSidebarButton) {
+                console.log("Found right sidebar toggle:", rightSidebarButton);
+                rightSidebarButton.click();
+              } else {
+                console.warn("Right sidebar toggle button not found.");
+              }
+            },
+            clickedLeft ? 50 : 0,
+          );
         }
-    }
 
-    function removeTheme() {
-        if (themeStyleElement) {
-            themeStyleElement.remove();
-            themeStyleElement = null;
-            console.log("NotebookLM Catppuccin: Dark theme removed.");
+        // Cmd/Ctrl + J -> Go to Home
+        if (
+          isModifierPressed &&
+          !event.shiftKey &&
+          event.key.toLowerCase() === "j"
+        ) {
+          if (isInputFocused && activeElement.tagName !== "BODY") return;
+          event.preventDefault();
+          event.stopPropagation();
+          console.log("Cmd/Ctrl+J pressed: Navigating home...");
+
+          const homeLink = document.querySelector(
+            'a[href="/"][aria-label*="NotebookLM home"], div.logo a.logo-link[href="/"]',
+          );
+
+          if (homeLink) {
+            console.log("Found home link:", homeLink);
+            homeLink.click();
+          } else {
+            console.warn("Home link not found.");
+          }
         }
-    }
+      },
+      true,
+    );
 
-    function handleThemeChange(mediaQuery) {
-        if (mediaQuery.matches) {
-            // Dark mode
-            applyTheme();
-        } else {
-            // Light mode
-            removeTheme();
-        }
-    }
+    console.log("NotebookLM Catppuccin: Shortcut listeners added.");
+  }
 
-    // --- Initialize Theme Based on System Preference ---
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    handleThemeChange(darkModeMediaQuery);
-    darkModeMediaQuery.addEventListener('change', handleThemeChange);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeShortcuts);
+  } else {
+    initializeShortcuts();
+  }
 
-    // --- Wait for DOM readiness before adding listeners ---
-    function initializeShortcuts() {
-        console.log("NotebookLM Catppuccin: DOM ready, adding shortcut listeners.");
-
-        document.addEventListener('keydown', function (event) {
-            const isModifierPressed = event.metaKey || event.ctrlKey;
-            const activeElement = document.activeElement;
-            const isInputFocused = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable);
-
-            // Cmd/Ctrl + Shift + S -> Toggle Both Sidebars
-            if (isModifierPressed && event.shiftKey && event.key.toLowerCase() === 's') {
-                if (isInputFocused) return;
-                event.preventDefault();
-                event.stopPropagation();
-                console.log('Cmd/Ctrl+Shift+S pressed: Toggling sidebars...');
-
-                const leftSidebarButton = document.querySelector('button[aria-label*="Sources"], button.toggle-source-panel-button');
-                const rightSidebarButton = document.querySelector('button[aria-label*="Notebook"], button[aria-label*="Studio"], button.toggle-studio-panel-button');
-
-                let clickedLeft = false;
-                if (leftSidebarButton) {
-                    console.log('Found left sidebar toggle:', leftSidebarButton);
-                    leftSidebarButton.click();
-                    clickedLeft = true;
-                } else { console.warn('Left sidebar toggle button not found.'); }
-
-                setTimeout(() => {
-                    if (rightSidebarButton) {
-                        console.log('Found right sidebar toggle:', rightSidebarButton);
-                        rightSidebarButton.click();
-                    } else { console.warn('Right sidebar toggle button not found.'); }
-                }, clickedLeft ? 50 : 0);
-            }
-
-            // Cmd/Ctrl + J -> Go to Home
-            if (isModifierPressed && !event.shiftKey && event.key.toLowerCase() === 'j') {
-                if (isInputFocused && activeElement.tagName !== 'BODY') return;
-                event.preventDefault();
-                event.stopPropagation();
-                console.log('Cmd/Ctrl+J pressed: Navigating home...');
-
-                const homeLink = document.querySelector('a[href="/"][aria-label*="NotebookLM home"], div.logo a.logo-link[href="/"]');
-
-                if (homeLink) {
-                    console.log('Found home link:', homeLink);
-                    homeLink.click();
-                } else { console.warn('Home link not found.'); }
-            }
-        }, true);
-
-        console.log("NotebookLM Catppuccin: Shortcut listeners added.");
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeShortcuts);
-    } else {
-        initializeShortcuts();
-    }
-
-    console.log("NotebookLM Catppuccin: Script initialized with dark mode detection.");
+  console.log(
+    "NotebookLM Catppuccin: Script initialized with typography styles and shortcuts.",
+  );
 })();
